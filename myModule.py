@@ -2,9 +2,10 @@ from __future__ import (absolute_import, division, print_function)
 import itertools
 import logging
 import os
+import pwd
 import warnings
 
-from colorclass import Color
+#from colorclass import Color
 
 from ansible import __version__ as ansible_version
 
@@ -70,28 +71,34 @@ class CallbackModule(CallbackBase):
 
 
     def d(self,s,o):
-	print(Color('\n{autogreen}** '+str(s)+' **{/autogreen}\n'+str(o)+'\n\n'))
+	print('\n{autogreen}** '+str(s)+' **{/autogreen}\n'+str(o)+'\n\n')
 
     def getDatas(self):
 	_datas=[]
 	
 	_s={}
-	_s['key']='uid'
+	_s['key']='EXECUTION_UID'
 	_s['value']=os.geteuid()
 	_s['type']='text'
 	_datas.append(_s)
 
 	_s={}
-	_s['key']='cwd'
+	_s['key']='EXECUTION_USER'
+	_s['value']=pwd.getpwuid(os.geteuid())[0]
+	_s['type']='text'
+	_datas.append(_s)
+
+	_s={}
+	_s['key']='EXECUTION_CWD'
 	_s['value']=os.getcwd()
 	_s['type']='text'
 	_datas.append(_s)
 
 	_s={}
-	_s['key']='env'
+	_s['key']='EXECUTION_ENV'
 	_s['value']=os.environ.copy()
-	_s['type']='text'
-#	_datas.append(_s)
+	_s['type']='json'
+	_datas.append(_s)
 
 #	print(os.environ.keys())
 
@@ -105,17 +112,33 @@ class CallbackModule(CallbackBase):
 
 	  if len(os.environ['SSH_CONNECTION'].split(' ')) == 4:
 	    _s={}
-  	    _s['key']='ssh_src_host'
-	    _s['value']=os.environ['SSH_CONNECTION'].split(' ')[1]
+  	    _s['key']='EXECUTION_SSH_CLIENT_HOST'
+	    _s['value']=os.environ['SSH_CONNECTION'].split(' ')[0]
 	    _s['type']='text'
 	    _datas.append(_s)
 
-	    #Extract other fields here
+            _s={}
+            _s['key']='EXECUTION_SSH_CLIENT_PORT'
+            _s['value']=os.environ['SSH_CONNECTION'].split(' ')[1]
+            _s['type']='text'
+            _datas.append(_s)
+
+            _s={}
+            _s['key']='EXECUTION_SSH_SERVER_HOST'
+            _s['value']=os.environ['SSH_CONNECTION'].split(' ')[2]
+            _s['type']='text'
+            _datas.append(_s)
+
+            _s={}
+            _s['key']='EXECUTION_SSH_SERVER_PORT'
+            _s['value']=os.environ['SSH_CONNECTION'].split(' ')[3]
+            _s['type']='text'
+            _datas.append(_s)
 
 
 	if 'SSH_TTY' in os.environ.keys():
 	  _s={}
-  	  _s['key']='tty'
+  	  _s['key']='EXECUTION_TTY'
 	  _s['value']=os.environ['SSH_TTY']
 	  _s['type']='text'
 	  _datas.append(_s)
@@ -126,11 +149,11 @@ class CallbackModule(CallbackBase):
 	return _datas
     def v2_playbook_on_start(self, playbook):
         path = os.path.abspath(playbook._file_name)
-	self.d('Playbook Started','')
-	self.d('path', path)
-	self.d('name', current_app._cache['playbook'])
+	#self.d('Playbook Started','')
+	#self.d('path', path)
+	#self.d('name', current_app._cache['playbook'])
 	for _d in self.getDatas():
-	  self.d('Logging Data', _d)
+	  #self.d('Logging Data', _d)
           data = models.Data(playbook_id=current_app._cache['playbook'],
 			key=_d['key'],
 			value=_d['value'],
