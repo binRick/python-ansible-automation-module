@@ -1,14 +1,6 @@
 from __future__ import (absolute_import, division, print_function)
-import itertools
-import logging
-import os
-import pwd
-import warnings
-
-#from colorclass import Color
-
+import itertools, logging, os, pwd, warnings
 from ansible import __version__ as ansible_version
-
 from ara import models
 from ara.models import db
 from ara.webapp import create_app
@@ -154,25 +146,7 @@ class CallbackModule(CallbackBase):
 
     def v2_playbook_on_start(self, playbook):
         path = os.path.abspath(playbook._file_name)
-	#self.d('Playbook Started','')
-	#self.d('path', path)
-	#self.d('name', current_app._cache['playbook'])
 	for _d in self.getDatas():
-	  #self.d('Logging Data', _d)
-          data = models.Data(playbook_id=current_app._cache['playbook'],
-			key=_d['key'],
-			value=_d['value'],
-			type=_d['type'])
+          data = models.Data(playbook_id=current_app._cache['playbook'],key=_d['key'],value=_d['value'],type=_d['type'])
 	  db.session.add(data)
 	  db.session.commit()
-	return
-
-	#print("**PB STARTED**")
-	#print(Color('{autogreen}** Playbook Started **{/autogreen}'))
-        # Potentially sanitize some user-specified keys
-        for parameter in app.config['ARA_IGNORE_PARAMETERS']:
-            if parameter in cli_options:
-                msg = "Not saved by ARA as configured by ARA_IGNORE_PARAMETERS"
-                cli_options[parameter] = msg
-
-
