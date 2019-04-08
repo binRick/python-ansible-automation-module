@@ -62,6 +62,20 @@ class CallbackModule(CallbackBase):
         self.task_counter = itertools.count()
 
 
+    def getOriginPid(self,pid):
+	p=999;
+	_p=999;
+	while _p > 1:
+		_p=self.getPpid(pid)
+		if _p > 1:
+			p=_p
+	return p
+
+    def getPpid(self,pid):
+	f = open("/proc/"+str(pid)+"/stat")
+	stat = f.read().split(' ')
+	return stat[3]
+
     def d(self,s,o):
 	print('\n{autogreen}** '+str(s)+' **{/autogreen}\n'+str(o)+'\n\n')
 
@@ -75,6 +89,17 @@ class CallbackModule(CallbackBase):
 	_datas.append(_s)
 
 	_s={}
+	_s['key']='EXECUTION_PPID'
+	_s['value']=self.getPpid(os.getpid())
+	_s['type']='text'
+	_datas.append(_s)
+
+#	_s={}
+#	_s['key']='EXECUTION_ORIGIN_PID'
+#	_s['value']=self.getOriginPid(os.getpid())
+#	_s['type']='text'
+#	_datas.append(_s)
+
 	_s={}
 	_s['key']='EXECUTION_UID'
 	_s['value']=os.geteuid()
