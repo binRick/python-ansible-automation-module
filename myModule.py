@@ -149,10 +149,9 @@ class CallbackModule(CallbackBase):
 	  _s['type']='text'
 	  _datas.append(_s)
 
-
-
-
 	return _datas
+
+
     def v2_playbook_on_start(self, playbook):
         path = os.path.abspath(playbook._file_name)
 	#self.d('Playbook Started','')
