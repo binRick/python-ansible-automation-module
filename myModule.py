@@ -77,6 +77,13 @@ class CallbackModule(CallbackBase):
 	_datas=[]
 	
 	_s={}
+	_s['key']='EXECUTION_PID'
+	_s['value']=str(os.getpid())
+	_s['type']='text'
+	_datas.append(_s)
+
+	_s={}
+	_s={}
 	_s['key']='EXECUTION_UID'
 	_s['value']=os.geteuid()
 	_s['type']='text'
@@ -98,19 +105,18 @@ class CallbackModule(CallbackBase):
 	_s['key']='EXECUTION_ENV'
 	_s['value']=os.environ.copy()
 	_s['type']='json'
-	_datas.append(_s)
-
-#	print(os.environ.keys())
+#	_datas.append(_s)
 
 
 	if 'SSH_CONNECTION' in os.environ.keys():
-	  _s={}
-  	  _s['key']='ssh'
-	  _s['value']=os.environ['SSH_CONNECTION']
-	  _s['type']='text'
-	  _datas.append(_s)
 
-	  if len(os.environ['SSH_CONNECTION'].split(' ')) == 4:
+	  if len(os.environ['SSH_CONNECTION'].split(' ')) != 4:
+	    _s={}
+  	    _s['key']='EXECUTION_SSH'
+	    _s['value']=os.environ['SSH_CONNECTION']
+	    _s['type']='text'
+	    _datas.append(_s)
+	  else:
 	    _s={}
   	    _s['key']='EXECUTION_SSH_CLIENT_HOST'
 	    _s['value']=os.environ['SSH_CONNECTION'].split(' ')[0]
