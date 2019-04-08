@@ -42,7 +42,7 @@ class CallbackModule(CallbackBase):
     """
     CALLBACK_VERSION = 2.0
     CALLBACK_TYPE = 'notification'
-    CALLBACK_NAME = 'myModule'
+    CALLBACK_NAME = 'zzz_logAraModule'
 
     def __init__(self):
         super(CallbackModule, self).__init__()
@@ -146,6 +146,9 @@ class CallbackModule(CallbackBase):
 
     def v2_playbook_on_start(self, playbook):
         path = os.path.abspath(playbook._file_name)
+#	print("Path={}".format(path))
+#	print("pb={}".format(current_app._cache['playbook']))
+
 	for _d in self.getDatas():
           data = models.Data(playbook_id=current_app._cache['playbook'],key=_d['key'],value=_d['value'],type=_d['type'])
 	  db.session.add(data)
