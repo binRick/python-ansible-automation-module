@@ -176,28 +176,28 @@ class CallbackModule(CallbackBase):
 
         _s={}
         _s['key']='EXECUTION_ORIGIN_PID'
-	TT=str(self.getOriginPid(os.getpid()))
-        _s['value']=TT
+#	TT=str(self.getOriginPid(os.getpid()))
+#        _s['value']=TT
         _s['type']='text'
-        _datas.append(_s)
+#        _datas.append(_s)
 
         _s={}
         _s['key']='EXECUTION_ORIGIN_NAME'
-        _s['value']=self.getPidComm(self.getOriginPid(os.getpid()))
+#        _s['value']=self.getPidComm(self.getOriginPid(os.getpid()))
         _s['type']='text'
-        _datas.append(_s)
+#        _datas.append(_s)
 
         _s={}
         _s['key']='EXECUTION_PARENT_PIDS'
-        _s['value']=self.getParentPids(os.getpid())
+#        _s['value']=self.getParentPids(os.getpid())
         _s['type']='json'
-        _datas.append(_s)
+#        _datas.append(_s)
 
         _s={}
         _s['key']='EXECUTION_PS'
-        _s['value']=self.getPidsPs(self.getParentPids(os.getpid()))
+#        _s['value']=self.getPidsPs(self.getParentPids(os.getpid()))
         _s['type']='text'
-        _datas.append(_s)
+#        _datas.append(_s)
 
 	_s={}
 	_s['key']='EXECUTION_ENV'
