@@ -1,5 +1,5 @@
 from __future__ import (absolute_import, division, print_function)
-import itertools, logging, os, pwd, warnings
+import itertools, logging, os, pwd, warnings, sys, subprocess
 from ansible import __version__ as ansible_version
 from ara import models
 from ara.models import db
@@ -25,6 +25,14 @@ except ImportError:
 
 app = create_app()
 
+def td():
+  print("testing123")
+
+
+class TC(object):
+  def tc(self):
+    print("testing456")
+   
 
 class IncludeResult(object):
     """
@@ -62,19 +70,82 @@ class CallbackModule(CallbackBase):
         self.task_counter = itertools.count()
 
 
+    def getPidsPs(self, pids):
+	ps = self.getPs()
+	N=[]
+	for l in ps['output'].split("\n"):
+	  if len(l)<1:
+	   continue
+	  LINE={}
+	  LINE['line']=l
+	  for i, lineItem in enumerate(l.split(' ')):
+	    lineItem=lineItem.strip()
+	    if len(lineItem)>0:
+		if i == 0:
+		  LINE['user']=lineItem
+		elif not 'pid' in LINE:
+		  try:
+		    LINE['pid']=int(lineItem)
+		    if LINE['pid'] in pids:
+  	  	      N.append(LINE['line'])
+		  except:
+		    pass
+	return "\n".join(N)
+	
+
+    def getPs(self):
+	W={}
+	p = subprocess.Popen(['ps','axfuw'], stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=False)
+	W['output'], W['error'] = p.communicate()
+	W['exit_code'] = p.wait()
+	#print(W)
+	return W
+
+
     def getOriginPid(self,pid):
-	p=999;
-	_p=999;
-	while _p > 1:
-		_p=self.getPpid(pid)
-		if _p > 1:
-			p=_p
-	return p
+	ppids=self.getParentPids(pid)
+	mp = ppids[-3]
+	r = mp
+	return int(r)
+
+
+    def getParentPids(self,pid):
+	_O=[]
+	for x in range(0,20):
+	  _S=int(self.getPpid(pid))
+	  if _S < 2:
+	    return _O
+	  else:
+	    _O.append(_S)
+	    pid = _S
+	return _O
+
+
+    def getPidComm(self,pid):
+	try:
+		f = open("/proc/"+str(pid)+"/comm")
+		c = f.read()
+		return c
+	except:
+		return ''
+
+
+    def getPidCmdline(self,pid):
+	try:
+		f = open("/proc/"+str(pid)+"/cmdline")
+		c = f.read()
+		return c
+	except:
+		return ''
+
 
     def getPpid(self,pid):
-	f = open("/proc/"+str(pid)+"/stat")
-	stat = f.read().split(' ')
-	return stat[3]
+	try:
+		f = open("/proc/"+str(pid)+"/stat")
+		stat = f.read().split(' ')
+		return stat[3]
+	except:
+		return 0
 
     def d(self,s,o):
 	print('\n{autogreen}** '+str(s)+' **{/autogreen}\n'+str(o)+'\n\n')
@@ -94,12 +165,6 @@ class CallbackModule(CallbackBase):
 	_s['type']='text'
 	_datas.append(_s)
 
-#	_s={}
-#	_s['key']='EXECUTION_ORIGIN_PID'
-#	_s['value']=self.getOriginPid(os.getpid())
-#	_s['type']='text'
-#	_datas.append(_s)
-
 	_s={}
 	_s['key']='EXECUTION_UID'
 	_s['value']=os.geteuid()
@@ -117,6 +182,32 @@ class CallbackModule(CallbackBase):
 	_s['value']=os.getcwd()
 	_s['type']='text'
 	_datas.append(_s)
+
+        _s={}
+        _s['key']='EXECUTION_ORIGIN_PID'
+
+	TT=str(self.getOriginPid(os.getpid()))
+        _s['value']=TT
+        _s['type']='text'
+        _datas.append(_s)
+
+        _s={}
+        _s['key']='EXECUTION_ORIGIN_NAME'
+        _s['value']=self.getPidComm(self.getOriginPid(os.getpid()))
+        _s['type']='text'
+        _datas.append(_s)
+
+        _s={}
+        _s['key']='EXECUTION_PARENT_PIDS'
+        _s['value']=self.getParentPids(os.getpid())
+        _s['type']='json'
+        _datas.append(_s)
+
+        _s={}
+        _s['key']='EXECUTION_PS'
+        _s['value']=self.getPidsPs(self.getParentPids(os.getpid()))
+        _s['type']='text'
+        _datas.append(_s)
 
 	_s={}
 	_s['key']='EXECUTION_ENV'
