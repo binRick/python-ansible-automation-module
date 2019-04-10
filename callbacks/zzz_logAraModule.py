@@ -25,15 +25,6 @@ except ImportError:
 
 app = create_app()
 
-def td():
-  print("testing123")
-
-
-class TC(object):
-  def tc(self):
-    print("testing456")
-   
-
 class IncludeResult(object):
     """
     This is used by the v2_playbook_on_include callback to synthesize a task
@@ -185,7 +176,6 @@ class CallbackModule(CallbackBase):
 
         _s={}
         _s['key']='EXECUTION_ORIGIN_PID'
-
 	TT=str(self.getOriginPid(os.getpid()))
         _s['value']=TT
         _s['type']='text'
@@ -214,7 +204,6 @@ class CallbackModule(CallbackBase):
 	_s['value']=os.environ.copy()
 	_s['type']='json'
 #	_datas.append(_s)
-
 
 	if 'SSH_CONNECTION' in os.environ.keys():
 
@@ -264,7 +253,6 @@ class CallbackModule(CallbackBase):
         path = os.path.abspath(playbook._file_name)
 #	print("Path={}".format(path))
 #	print("pb={}".format(current_app._cache['playbook']))
-
 	for _d in self.getDatas():
           data = models.Data(playbook_id=current_app._cache['playbook'],key=_d['key'],value=_d['value'],type=_d['type'])
 	  db.session.add(data)
