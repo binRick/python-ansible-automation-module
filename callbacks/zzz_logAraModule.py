@@ -1,5 +1,5 @@
 from __future__ import (absolute_import, division, print_function)
-import itertools, logging, os, pwd, warnings, sys, subprocess
+import itertools, logging, os, pwd, warnings, sys, subprocess, psutil
 from ansible import __version__ as ansible_version
 from ara import models
 from ara.models import db
@@ -95,15 +95,14 @@ class CallbackModule(CallbackBase):
 
     def getOriginPid(self,pid):
 	ppids=self.getParentPids(pid)
-	mp = ppids[-3]
-	r = mp
-	return int(r)
+	return int(ppids[-1])
 
 
     def getParentPids(self,pid):
 	_O=[]
 	for x in range(0,20):
 	  _S=int(self.getPpid(pid))
+	  #print("pid={},_S={}".format(pid,_S))
 	  if _S < 2:
 	    return _O
 	  else:
@@ -131,10 +130,18 @@ class CallbackModule(CallbackBase):
 
 
     def getPpid(self,pid):
+	P = psutil.Process(pid)
+	return P.ppid()
+
 	try:
+		statFile="/proc/"+str(pid)+"/stat"
+		#print("statFile={}".format(statFile))
 		f = open("/proc/"+str(pid)+"/stat")
 		stat = f.read().split(' ')
-		return stat[3]
+		if not '(' in stat[1]:
+		  return stat[3]
+		bp = f.split(')')[1].split(' ')[2]
+		return bp
 	except:
 		return 0
 
@@ -176,28 +183,33 @@ class CallbackModule(CallbackBase):
 
         _s={}
         _s['key']='EXECUTION_ORIGIN_PID'
-#	TT=str(self.getOriginPid(os.getpid()))
-#        _s['value']=TT
+	TT=str(self.getOriginPid(os.getpid()))
+	#print("getOriginPid={}".format(TT))
+#	sys.exit()
+
+        _s['value']=TT
         _s['type']='text'
-#        _datas.append(_s)
+        _datas.append(_s)
 
         _s={}
         _s['key']='EXECUTION_ORIGIN_NAME'
-#        _s['value']=self.getPidComm(self.getOriginPid(os.getpid()))
+        _s['value']=self.getPidComm(self.getOriginPid(os.getpid()))
         _s['type']='text'
-#        _datas.append(_s)
+        _datas.append(_s)
+	#print("Origin Name={}".format(_s['value']))
+	#sys.exit()
 
         _s={}
         _s['key']='EXECUTION_PARENT_PIDS'
-#        _s['value']=self.getParentPids(os.getpid())
+        _s['value']=self.getParentPids(os.getpid())
         _s['type']='json'
-#        _datas.append(_s)
+        _datas.append(_s)
 
         _s={}
         _s['key']='EXECUTION_PS'
-#        _s['value']=self.getPidsPs(self.getParentPids(os.getpid()))
+        _s['value']=self.getPidsPs(self.getParentPids(os.getpid()))
         _s['type']='text'
-#        _datas.append(_s)
+        _datas.append(_s)
 
 	_s={}
 	_s['key']='EXECUTION_ENV'
