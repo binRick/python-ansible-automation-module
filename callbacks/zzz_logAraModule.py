@@ -59,6 +59,7 @@ class ansibleCallbackTools():
 
     def getParentPids(self,pid):
         _O=[]
+        _O.append(pid)
         for x in range(0,20):
           _S=int(self.getPpid(pid))
           if _S < 2:
