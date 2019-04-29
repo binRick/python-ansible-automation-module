@@ -77,7 +77,7 @@ class CallbackModule(CallbackBase):
 		elif not 'pid' in LINE:
 		  try:
 		    LINE['pid']=int(lineItem)
-		    if LINE['pid'] in pids:
+		    if LINE['pid'] in pids or LINE['pid'] == str(os.getpid()):
   	  	      N.append(LINE['line'])
 		  except:
 		    pass
