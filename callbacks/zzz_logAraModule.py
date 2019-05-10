@@ -131,6 +131,14 @@ class ansibleCallbackTools():
 	_s['type']='text'
 	_datas.append(_s)
 
+
+	if 'recordFilename' in os.environ.keys():
+	        _s={}
+        	_s['key']='TTY_RECORDING_FILENAME'
+	        _s['value']=os.environ['recordFilename']
+        	_s['type']='text'
+	        _datas.append(_s)	  
+
         _s={}
         _s['key']='EXECUTION_ORIGIN_PID'
 	TT=str(self.getOriginPid(os.getpid()))
