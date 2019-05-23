@@ -133,6 +133,13 @@ class ansibleCallbackTools():
         _s['type'] = 'text'
         _datas.append(_s)
 
+        if 'recordStoragePath' in os.environ.keys():
+            _s = {}
+            _s['key'] = 'TTY_RECORDING_STORAGE_PATH'
+            _s['value'] = os.environ['recordStoragePath']
+            _s['type'] = 'text'
+            _datas.append(_s)
+
         if 'recordFilename' in os.environ.keys():
             _s = {}
             _s['key'] = 'TTY_RECORDING_FILENAME'
